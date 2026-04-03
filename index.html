@@ -211,7 +211,7 @@ const TMIN=(EH-SH)*60,TPX=TMIN*PPM;
 const DAYS=[{l:'5/18 (月)',n:'両チーム訪問'},{l:'5/19 (火)',n:'両チーム訪問'},{l:'5/20 (水)',n:'A:ATxSG / B:訪問'},{l:'5/21 (木)',n:'A:訪問 / B:ATxSG'}];
 const CLS={visit:'v',event:'ev',review:'rv',travel:'tv',reserve:'rs',sync:'sy',dinner:'di',lunch:'lu'};
 const LBL={visit:'企業訪問',event:'ATxSG',review:'振り返り',travel:'移動',reserve:'予備枠',sync:'チーム共有',dinner:'ディナー',lunch:'ランチ'};
-let currentView=0, nid=1, S=[], apiUrl='', syncTimer=null, syncSec=30;
+let currentView=0, nid=1, S=[], apiUrl='https://script.google.com/macros/s/AKfycbx3C3IXXKEtc2yYN8KyDBGyPg8VsDZ9uqxqyZD9BZ6AuJpeyh2hxopraI1XwPntQeXO/exec', syncTimer=null, syncSec=30;
 
 function t2m(t){const p=t.split(':').map(Number);return(p[0]-SH)*60+p[1];}
 function m2t(m){const h=Math.floor(m/60)+SH,mm=m%60;return h+':'+(mm<10?'0'+mm:mm);}
