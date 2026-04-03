@@ -272,7 +272,7 @@ function loadLocal(){
 }
 
 async function init(){
-  apiUrl=localStorage.getItem('sg_api_url')||'';
+  apiUrl=localStorage.getItem('sg_api_url')||apiUrl||'';
   syncSec=parseInt(localStorage.getItem('sg_sync_sec')||'30');
   if(apiUrl){
     document.getElementById('setupBanner').style.display='none';
