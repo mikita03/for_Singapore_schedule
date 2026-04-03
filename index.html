@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG出張スケジュール 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fff;--bg2:#f5f5f3;--bg3:#eee;--text:#1a1a1a;--text2:#6b6b6b;--text3:#9b9b9b;
+  --border:#e0e0de;--border2:#ccc;
+  --visit-bg:#d9f2e8;--visit-tx:#065f46;--visit-bd:#86d4b5;
+  --event-bg:#dbeafe;--event-tx:#1e3a5f;--event-bd:#93b8e8;
+  --review-bg:#f0efec;--review-tx:#6b6b6b;--review-bd:#d5d4d0;
+  --travel-bg:#f7f7f5;--travel-tx:#9b9b9b;--travel-bd:#e0e0de;
+  --reserve-bg:#fef3d0;--reserve-tx:#6b4c00;--reserve-bd:#e8c84a;
+  --sync-bg:#fce4d6;--sync-tx:#7c2d12;--sync-bd:#e8a88a;
+  --dinner-bg:#ede9fe;--dinner-tx:#4c1d95;--dinner-bd:#b8a9e8;
+  --lunch-bg:#f5f5f3;--lunch-tx:#9b9b9b;--lunch-bd:#e0e0de;
+  --accent:#1a7f64;
+}
+body{font-family:'Helvetica Neue',Arial,'Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.app{max-width:900px;margin:0 auto;padding:16px}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.hd h1{font-size:18px;font-weight:600;letter-spacing:-0.02em}
+.hd .meta{font-size:12px;color:var(--text2)}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions button{font-size:12px;padding:5px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg);color:var(--text);cursor:pointer;font-family:inherit}
+.actions button:hover{background:var(--bg2)}
+.lg{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:10px}
+.lg span{display:flex;align-items:center;gap:3px}
+.lg .d{width:10px;height:10px;border-radius:3px}
+
+.view-toggle{display:flex;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content}
+.view-toggle button{font-size:13px;font-weight:500;padding:8px 20px;border:none;background:var(--bg);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;border-right:1px solid var(--border)}
+.view-toggle button:last-child{border-right:none}
+.view-toggle button.active{background:var(--accent);color:#fff}
+.view-toggle button:hover:not(.active){background:var(--bg2)}
+.view-toggle .phase{font-size:10px;display:block;margin-top:1px;opacity:.7}
+
+.cal-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.cal-header{display:grid;grid-template-columns:54px 1fr 1fr;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.ch-corner{border-right:1px solid var(--border);padding:8px 4px}
+.ch-day{border-right:1px solid var(--border);padding:8px 4px 6px;text-align:center}
+.ch-day:last-child{border-right:none}
+.ch-day .dl{font-size:14px;font-weight:600}
+.ch-day .dn{font-size:11px;color:var(--text2);margin-top:2px}
+.ch-day .tr{display:grid;grid-template-columns:1fr 1fr;margin-top:4px;font-size:12px;color:var(--text2);font-weight:500}
+
+.cal-body-wrap{max-height:75vh;overflow-y:auto}
+.cal-body{display:grid;grid-template-columns:54px 1fr 1fr}
+.tc{border-right:1px solid var(--border);position:relative;background:var(--bg2)}
+.tm{position:absolute;right:6px;font-size:11px;color:var(--text3);transform:translateY(-7px)}
+.db{position:relative;border-right:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr}
+.db:last-child{border-right:none}
+.gl{position:absolute;left:0;right:0;height:0;pointer-events:none;z-index:0}
+.gl.h{border-top:1px solid var(--border)}
+.gl.hf{border-top:1px dotted var(--bg3)}
+.cl{position:absolute;top:0;bottom:0;left:50%;border-left:1px dotted var(--bg3);pointer-events:none;z-index:0}
+.ln{position:relative;z-index:1;padding:0 3px}
+
+.bk{position:absolute;left:3px;right:3px;border-radius:6px;padding:5px 8px;font-size:12px;line-height:1.4;overflow:hidden;border:1px solid transparent;z-index:2;transition:box-shadow .15s;user-select:none;cursor:grab}
+.bk:hover{box-shadow:0 2px 6px rgba(0,0,0,.1);z-index:10}
+.bk.dg{opacity:.85;z-index:100;cursor:grabbing;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.bk .tb2{font-size:10px;opacity:.6;margin-bottom:2px}
+.bk .bl{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.bk .bd{margin-top:3px}
+.bk .be{background:transparent;border:none;border-bottom:1px dashed currentColor;color:inherit;font:inherit;font-size:12px;width:100%;outline:none;padding:0}
+.bk .be::placeholder{opacity:.4}
+.bk .field-row{display:flex;align-items:center;gap:4px;margin-top:3px}
+.bk .field-icon{font-size:10px;opacity:.5;flex-shrink:0;width:14px;text-align:center}
+.bk .be-sm{background:transparent;border:none;border-bottom:1px dashed currentColor;color:inherit;font:inherit;font-size:11px;width:100%;outline:none;padding:0;opacity:.85}
+.bk .be-sm::placeholder{opacity:.4}
+.bk .rh{position:absolute;bottom:0;left:0;right:0;height:8px;cursor:ns-resize}
+.bk .detail-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8;margin-top:2px;font-size:11px}
+
+.bk.v{background:var(--visit-bg);color:var(--visit-tx);border-color:var(--visit-bd)}
+.bk.ev{background:var(--event-bg);color:var(--event-tx);border-color:var(--event-bd)}
+.bk.rv{background:var(--review-bg);color:var(--review-tx);border-color:var(--review-bd)}
+.bk.tv{background:var(--travel-bg);color:var(--travel-tx);border-color:var(--travel-bd)}
+.bk.rs{background:var(--reserve-bg);color:var(--reserve-tx);border-color:var(--reserve-bd);border-style:dashed}
+.bk.sy{background:var(--sync-bg);color:var(--sync-tx);border-color:var(--sync-bd)}
+.bk.di{background:var(--dinner-bg);color:var(--dinner-tx);border-color:var(--dinner-bd)}
+.bk.lu{background:var(--lunch-bg);color:var(--lunch-tx);border-color:var(--lunch-bd)}
+
+.tt{position:fixed;bottom:20px;right:20px;background:#1a1a1a;color:#fff;padding:8px 16px;border-radius:6px;font-size:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:1000}
+.tt.sh{opacity:1}
+.cm{position:fixed;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:4px 0;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:200;min-width:180px;font-size:13px;display:none;max-height:70vh;overflow-y:auto}
+.cm div{padding:6px 14px;cursor:pointer}
+.cm div:hover{background:var(--bg2)}
+.cm .dng{color:#dc2626}
+.cm .sep{border-top:1px solid var(--border);margin:4px 0;padding:0;cursor:default;height:0;min-height:0}
+.cm .sep:hover{background:transparent}
+.cm .sc{font-size:11px;color:var(--text3);padding:4px 14px 2px;cursor:default;font-weight:500}
+.cm .sc:hover{background:transparent}
+.md-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.3);z-index:300;display:none;align-items:center;justify-content:center}
+.md-ov.show{display:flex}
+.md-pn{background:var(--bg);border-radius:12px;padding:24px;width:340px;max-width:90vw}
+.md-pn h2{font-size:16px;font-weight:600;margin-bottom:14px}
+.md-pn label{display:block;font-size:12px;color:var(--text2);margin:12px 0 4px}
+.md-pn label:first-of-type{margin-top:0}
+.md-pn select,.md-pn input[type=time]{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:var(--bg)}
+.md-btns{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.md-btns button{padding:7px 18px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-c{background:var(--bg2);border:1px solid var(--border);color:var(--text)}
+.btn-a{background:var(--visit-bg);border:1px solid var(--visit-bd);color:var(--visit-tx);font-weight:600}
+.foot{margin-top:12px;font-size:11px;color:var(--text3);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div>
+      <h1>SG出張スケジュール 2026</h1>
+      <div class="meta">5/17(日)23:00着 〜 5/21(木) ｜ 4名（チームA + チームB）｜ 訪問目標 8〜12件</div>
+    </div>
+    <div class="actions">
+      <button onclick="openAdd()">+ ブロック追加</button>
+      <button onclick="exportCSV()">CSV出力</button>
+      <button onclick="resetAll()">リセット</button>
+    </div>
+  </div>
+  <div class="lg">
+    <span><span class="d" style="background:var(--travel-bg);border:1px solid var(--travel-bd)"></span>移動</span>
+    <span><span class="d" style="background:var(--visit-bg);border:1px solid var(--visit-bd)"></span>企業訪問</span>
+    <span><span class="d" style="background:var(--review-bg);border:1px solid var(--review-bd)"></span>振り返り</span>
+    <span><span class="d" style="background:var(--event-bg);border:1px solid var(--event-bd)"></span>ATxSG</span>
+    <span><span class="d" style="background:var(--reserve-bg);border:1px solid var(--reserve-bd)"></span>予備枠</span>
+    <span><span class="d" style="background:var(--sync-bg);border:1px solid var(--sync-bd)"></span>チーム共有</span>
+    <span><span class="d" style="background:var(--dinner-bg);border:1px solid var(--dinner-bd)"></span>ディナー</span>
+  </div>
+  <div class="view-toggle" id="viewToggle">
+    <button class="active" onclick="setView(0)">5/18 (月) - 5/19 (火)<span class="phase">前半：終日訪問</span></button>
+    <button onclick="setView(1)">5/20 (水) - 5/21 (木)<span class="phase">後半：ATxSG + 訪問</span></button>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-header" id="calHeader"></div>
+    <div class="cal-body-wrap" id="scrollWrap">
+      <div class="cal-body" id="calBody"></div>
+    </div>
+  </div>
+  <div class="foot">ドラッグ: 時間変更 ｜ 下端ドラッグ: 長さ変更 ｜ 右クリック: 種別変更・別日移動・削除 ｜ 企業訪問・予備枠: クリックで企業名・場所・連絡先を入力</div>
+</div>
+<div class="tt" id="toast"></div>
+<div class="cm" id="ctx"></div>
+<div class="md-ov" id="addMd">
+  <div class="md-pn">
+    <h2>ブロック追加</h2>
+    <label>日付</label>
+    <select id="aDay"><option value="d0">5/18 (月)</option><option value="d1">5/19 (火)</option><option value="d2">5/20 (水)</option><option value="d3">5/21 (木)</option></select>
+    <label>チーム</label>
+    <select id="aTeam"><option value="A">チームA</option><option value="B">チームB</option></select>
+    <label>種別</label>
+    <select id="aType"><option value="visit">企業訪問</option><option value="travel">移動</option><option value="review">振り返り</option><option value="reserve">予備枠</option><option value="event">ATxSG</option><option value="sync">チーム共有</option><option value="lunch">ランチ</option><option value="dinner">ディナー</option></select>
+    <label>開始時刻</label>
+    <input type="time" id="aTime" value="10:00" step="900">
+    <label>所要時間</label>
+    <select id="aDur"><option value="15">15分</option><option value="30">30分</option><option value="45">45分</option><option value="60" selected>60分</option><option value="90">90分</option><option value="120">120分</option></select>
+    <div class="md-btns">
+      <button class="btn-c" onclick="closeAdd()">キャンセル</button>
+      <button class="btn-a" onclick="doAdd()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SH=6, EH=23, PPM=2.0, SNAP=15;
+const TMIN=(EH-SH)*60, TPX=TMIN*PPM;
+
+const DAYS=[
+  {l:'5/18 (月)',n:'両チーム訪問'},
+  {l:'5/19 (火)',n:'両チーム訪問'},
+  {l:'5/20 (水)',n:'A:ATxSG / B:訪問'},
+  {l:'5/21 (木)',n:'A:訪問 / B:ATxSG'}
+];
+const CLS={visit:'v',event:'ev',review:'rv',travel:'tv',reserve:'rs',sync:'sy',dinner:'di',lunch:'lu'};
+const LBL={visit:'企業訪問',event:'ATxSG',review:'振り返り',travel:'移動',reserve:'予備枠',sync:'チーム共有',dinner:'ディナー',lunch:'ランチ'};
+
+let currentView=0;
+
+function t2m(t){const p=t.split(':').map(Number);return(p[0]-SH)*60+p[1];}
+function m2t(m){const h=Math.floor(m/60)+SH,mm=m%60;return h+':'+(mm<10?'0'+mm:mm);}
+function m2px(m){return m*PPM;}
+function snap(m){return Math.round(m/SNAP)*SNAP;}
+
+let nid=1, S=[];
+
+function mkV(){return[
+  {s:'9:15',d:45,t:'travel',l:'移動',dt:'ホテル→訪問先'},
+  {s:'10:00',d:60,t:'visit',l:'訪問 1',dt:''},
+  {s:'11:00',d:15,t:'travel',l:'移動',dt:'→カフェ'},
+  {s:'11:15',d:30,t:'review',l:'振り返り',dt:''},
+  {s:'11:45',d:75,t:'lunch',l:'ランチ + 移動',dt:''},
+  {s:'13:00',d:30,t:'travel',l:'移動',dt:'→訪問先'},
+  {s:'13:30',d:60,t:'visit',l:'訪問 2',dt:''},
+  {s:'14:30',d:15,t:'travel',l:'移動',dt:'→カフェ'},
+  {s:'14:45',d:30,t:'review',l:'振り返り',dt:''},
+  {s:'15:15',d:75,t:'reserve',l:'予備',dt:'訪問3 or バッファ'},
+  {s:'16:30',d:30,t:'travel',l:'移動',dt:'→共有場所'}
+];}
+function mkE(){return[
+  {s:'8:00',d:60,t:'travel',l:'移動',dt:'ホテル→EXPO'},
+  {s:'9:00',d:180,t:'event',l:'ATxSG',dt:'午前セッション'},
+  {s:'12:00',d:60,t:'lunch',l:'ランチ',dt:'会場内'},
+  {s:'13:00',d:240,t:'event',l:'ATxSG',dt:'午後セッション'}
+];}
+function mkEv(){return[
+  {s:'17:00',d:30,t:'travel',l:'移動',dt:'→共有場所'},
+  {s:'17:30',d:90,t:'sync',l:'チーム間共有',dt:''},
+  {s:'19:00',d:30,t:'travel',l:'移動',dt:'→レストラン'},
+  {s:'19:30',d:90,t:'dinner',l:'ディナー',dt:''}
+];}
+function ids(a,day,team){return a.map(b=>({id:nid++,day,team,start:b.s,dur:b.d,type:b.t,label:b.l,detail:b.dt,location:'',contact:''}));}
+function mkDef(){
+  nid=1;let b=[];
+  [{a:mkV,b:mkV},{a:mkV,b:mkV},{a:mkE,b:mkV},{a:mkV,b:mkE}].forEach((c,i)=>{
+    b=b.concat(ids(c.a(),'d'+i,'A'),ids(mkEv(),'d'+i,'A'),ids(c.b(),'d'+i,'B'),ids(mkEv(),'d'+i,'B'));
+  });
+  return b;
+}
+
+function load(){try{const s=localStorage.getItem('sg7');if(s){S=JSON.parse(s);nid=Math.max(...S.map(b=>b.id))+1;return;}}catch(e){}S=mkDef();}
+function save(){try{localStorage.setItem('sg7',JSON.stringify(S));}catch(e){}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(()=>t.classList.remove('sh'),1500);}
+
+function setView(v){
+  currentView=v;
+  document.querySelectorAll('.view-toggle button').forEach((btn,i)=>{
+    btn.classList.toggle('active',i===v);
+  });
+  render();
+}
+
+function getVisibleDays(){
+  return currentView===0 ? [0,1] : [2,3];
+}
+
+function render(){
+  const days=getVisibleDays();
+  const hdr=document.getElementById('calHeader');
+  hdr.innerHTML='<div class="ch-corner"></div>';
+  days.forEach(di=>{
+    const d=DAYS[di];
+    hdr.innerHTML+='<div class="ch-day"><div class="dl">'+d.l+'</div><div class="dn">'+d.n+'</div><div class="tr"><span>A</span><span>B</span></div></div>';
+  });
+
+  const cal=document.getElementById('calBody');
+  cal.innerHTML='';
+
+  const tc=document.createElement('div');
+  tc.className='tc';
+  tc.style.cssText='position:relative;height:'+TPX+'px';
+  for(let h=SH;h<=EH;h++){
+    const mk=document.createElement('div');
+    mk.className='tm';mk.style.top=m2px((h-SH)*60)+'px';mk.textContent=h+':00';
+    tc.appendChild(mk);
+  }
+  cal.appendChild(tc);
+
+  days.forEach(di=>{
+    const db=document.createElement('div');
+    db.className='db';db.style.height=TPX+'px';db.dataset.day='d'+di;
+
+    for(let h=SH;h<=EH;h++){
+      for(let m=0;m<60;m+=30){
+        if(h===EH&&m>0)break;
+        const min=(h-SH)*60+m;
+        const g=document.createElement('div');
+        g.className='gl '+(m===0?'h':'hf');g.style.top=m2px(min)+'px';
+        db.appendChild(g);
+      }
+    }
+    db.appendChild(Object.assign(document.createElement('div'),{className:'cl'}));
+
+    ['A','B'].forEach(team=>{
+      const ln=document.createElement('div');
+      ln.className='ln';ln.dataset.team=team;ln.dataset.day='d'+di;
+      S.filter(b=>b.day==='d'+di&&b.team===team)
+       .sort((a,b)=>t2m(a.start)-t2m(b.start))
+       .forEach(b=>ln.appendChild(mkBlock(b)));
+      db.appendChild(ln);
+    });
+    cal.appendChild(db);
+  });
+}
+
+function mkBlock(b){
+  const el=document.createElement('div');
+  const sm=t2m(b.start), hpx=b.dur*PPM;
+  el.className='bk '+(CLS[b.type]||'tv');
+  el.style.cssText='position:absolute;top:'+m2px(sm)+'px;left:3px;right:3px;height:'+hpx+'px';
+  el.dataset.id=b.id;
+
+  let inn='<div class="tb2">'+b.start+' - '+m2t(t2m(b.start)+b.dur)+' ('+b.dur+'分)</div>';
+  inn+='<div class="bl">'+b.label+'</div>';
+  if(b.type==='visit'||b.type==='reserve'){
+    inn+='<div class="bd"><input class="be" value="'+(b.detail||'').replace(/"/g,'&quot;')+'" placeholder="企業名を入力" data-field="detail" data-id="'+b.id+'"></div>';
+    inn+='<div class="field-row"><span class="field-icon">📍</span><input class="be-sm" value="'+(b.location||'').replace(/"/g,'&quot;')+'" placeholder="場所" data-field="location" data-id="'+b.id+'"></div>';
+    inn+='<div class="field-row"><span class="field-icon">👤</span><input class="be-sm" value="'+(b.contact||'').replace(/"/g,'&quot;')+'" placeholder="連絡先" data-field="contact" data-id="'+b.id+'"></div>';
+  } else if(b.detail && hpx>35){
+    inn+='<div class="detail-text">'+b.detail+'</div>';
+  }
+  el.innerHTML=inn;
+
+  el.querySelectorAll('.be, .be-sm').forEach(inp=>{
+    inp.addEventListener('change',e=>{
+      const x=S.find(x=>x.id===b.id);
+      if(x){x[e.target.dataset.field]=e.target.value;save();toast('保存しました');}
+    });
+    inp.addEventListener('mousedown',e=>e.stopPropagation());
+  });
+
+  el.addEventListener('mousedown',e=>dragStart(e,b.id));
+  el.addEventListener('contextmenu',e=>ctxShow(e,b.id));
+
+  const rh=document.createElement('div');rh.className='rh';
+  rh.addEventListener('mousedown',e=>{e.stopPropagation();resizeStart(e,b.id);});
+  el.appendChild(rh);
+  return el;
+}
+
+let _drag=null;
+function dragStart(e,id){
+  if(e.button!==0||e.target.closest('.be')||e.target.closest('.be-sm'))return;
+  e.preventDefault();
+  const el=e.currentTarget, lane=el.parentElement, laneRect=lane.getBoundingClientRect();
+  const blockTopMin=t2m(S.find(b=>b.id===id).start);
+  const grabOffset=(e.clientY-laneRect.top)-m2px(blockTopMin);
+  _drag={id,el,lane,grabOffset};
+  el.classList.add('dg');
+  document.addEventListener('mousemove',dragMove);
+  document.addEventListener('mouseup',dragEnd);
+}
+function dragMove(e){
+  if(!_drag)return;
+  const lr=_drag.lane.getBoundingClientRect();
+  let nm=snap((e.clientY-lr.top-_drag.grabOffset)/PPM);
+  nm=Math.max(0,Math.min(TMIN-SNAP,nm));
+  _drag.el.style.top=m2px(nm)+'px';
+  const bl=S.find(b=>b.id===_drag.id), tb=_drag.el.querySelector('.tb2');
+  if(tb&&bl) tb.textContent=m2t(nm)+' - '+m2t(nm+bl.dur)+' ('+bl.dur+'分)';
+}
+function dragEnd(){
+  document.removeEventListener('mousemove',dragMove);
+  document.removeEventListener('mouseup',dragEnd);
+  if(!_drag)return;
+  _drag.el.classList.remove('dg');
+  const nm=snap(parseFloat(_drag.el.style.top)/PPM);
+  const bl=S.find(b=>b.id===_drag.id);
+  if(bl){bl.start=m2t(nm);save();render();toast(bl.label+' → '+bl.start);}
+  _drag=null;
+}
+
+let _rsz=null;
+function resizeStart(e,id){
+  e.preventDefault();
+  const el=document.querySelector('[data-id="'+id+'"]');
+  _rsz={id,el,startY:e.clientY,startH:parseFloat(el.style.height)};
+  document.addEventListener('mousemove',resizeMove);
+  document.addEventListener('mouseup',resizeEnd);
+}
+function resizeMove(e){
+  if(!_rsz)return;
+  let nd=snap((_rsz.startH+(e.clientY-_rsz.startY))/PPM);
+  nd=Math.max(SNAP,nd);
+  _rsz.el.style.height=(nd*PPM)+'px';
+  const bl=S.find(b=>b.id===_rsz.id), tb=_rsz.el.querySelector('.tb2');
+  if(tb&&bl) tb.textContent=bl.start+' - '+m2t(t2m(bl.start)+nd)+' ('+nd+'分)';
+}
+function resizeEnd(){
+  document.removeEventListener('mousemove',resizeMove);
+  document.removeEventListener('mouseup',resizeEnd);
+  if(!_rsz)return;
+  const nd=Math.max(SNAP,snap(parseFloat(_rsz.el.style.height)/PPM));
+  const bl=S.find(b=>b.id===_rsz.id);
+  if(bl){bl.dur=nd;save();render();toast(bl.label+': '+nd+'分');}
+  _rsz=null;
+}
+
+function ctxShow(e,id){
+  e.preventDefault();e.stopPropagation();
+  const cm=document.getElementById('ctx'),bl=S.find(b=>b.id===id);
+  if(!bl)return;cm.innerHTML='';
+
+  const s1=document.createElement('div');s1.className='sc';s1.textContent='種別変更';cm.appendChild(s1);
+  Object.entries(LBL).forEach(([k,v])=>{
+    const d=document.createElement('div');d.textContent=v;
+    if(bl.type===k)d.style.fontWeight='600';
+    d.onclick=()=>{bl.type=k;bl.label=v;save();render();cm.style.display='none';};
+    cm.appendChild(d);
+  });
+  cm.appendChild(Object.assign(document.createElement('div'),{className:'sep'}));
+
+  const s2=document.createElement('div');s2.className='sc';s2.textContent='別の日/チームへ移動';cm.appendChild(s2);
+  ['A','B'].forEach(team=>{
+    ['d0','d1','d2','d3'].forEach((day,i)=>{
+      if(bl.day===day&&bl.team===team)return;
+      const d=document.createElement('div');d.textContent=DAYS[i].l+' '+team;
+      d.onclick=()=>{bl.day=day;bl.team=team;save();render();cm.style.display='none';toast('移動しました');};
+      cm.appendChild(d);
+    });
+  });
+  cm.appendChild(Object.assign(document.createElement('div'),{className:'sep'}));
+
+  const del=document.createElement('div');del.className='dng';del.textContent='このブロックを削除';
+  del.onclick=()=>{S=S.filter(b=>b.id!==id);save();render();cm.style.display='none';toast('削除しました');};
+  cm.appendChild(del);
+
+  cm.style.display='block';
+  cm.style.left=Math.min(e.clientX,innerWidth-200)+'px';
+  cm.style.top=Math.min(e.clientY,innerHeight-300)+'px';
+}
+document.addEventListener('click',()=>document.getElementById('ctx').style.display='none');
+
+function openAdd(){document.getElementById('addMd').classList.add('show');}
+function closeAdd(){document.getElementById('addMd').classList.remove('show');}
+function doAdd(){
+  const day=document.getElementById('aDay').value,team=document.getElementById('aTeam').value;
+  const type=document.getElementById('aType').value,time=document.getElementById('aTime').value;
+  const dur=parseInt(document.getElementById('aDur').value);
+  S.push({id:nid++,day,team,start:time,dur,type,label:LBL[type]||type,detail:'',location:'',contact:''});
+  save();render();closeAdd();toast('追加しました');
+}
+
+function exportCSV(){
+  let csv='日付,開始,終了,所要時間(分),チーム,種別,ラベル,企業名/詳細,場所,連絡先\n';
+  const dl={'d0':'2026-05-18','d1':'2026-05-19','d2':'2026-05-20','d3':'2026-05-21'};
+  S.slice().sort((a,b)=>a.day<b.day?-1:a.day>b.day?1:a.team<b.team?-1:a.team>b.team?1:t2m(a.start)-t2m(b.start)).forEach(b=>{
+    csv+=dl[b.day]+','+b.start+','+m2t(t2m(b.start)+b.dur)+','+b.dur+',チーム'+b.team+','+b.type+','+b.label+',"'+(b.detail||'').replace(/"/g,'""')+'","'+(b.location||'').replace(/"/g,'""')+'","'+(b.contact||'').replace(/"/g,'""')+'"\n';
+  });
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));a.download='SG出張スケジュール.csv';a.click();toast('CSVをダウンロードしました');
+}
+
+function resetAll(){
+  if(!confirm('スケジュールをデフォルトに戻しますか？すべての変更が失われます。'))return;
+  localStorage.removeItem('sg7');S=mkDef();save();render();toast('リセットしました');
+}
+
+load();render();
+</script>
+</body>
+</html>
